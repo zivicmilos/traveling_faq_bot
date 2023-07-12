@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from gensim.models import Word2Vec, KeyedVectors
 from gensim.utils import tokenize
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.neighbors import NearestNeighbors
 
 
@@ -42,7 +43,12 @@ def train_save_word2vec(corpus: list[list[str]]) -> tuple[Word2Vec, KeyedVectors
     return model, model.wv
 
 
-def vectorize(wv: KeyedVectors, document: list[str], strategy: str) -> np.ndarray:
+def vectorize(
+    wv: KeyedVectors,
+    document: list[str],
+    strategy: str,
+    tfidf_vectorizer: TfidfVectorizer,
+) -> np.ndarray:
     """
     Transforms documents to vectors
 
@@ -52,10 +58,17 @@ def vectorize(wv: KeyedVectors, document: list[str], strategy: str) -> np.ndarra
         input document from corpus
     :param strategy: str
         strategy of transforming word vectors
+    :param tfidf_vectorizer: TfidfVectorizer
+        TF-IDF vectorizer
     :return:
         vector representation of question
     """
+    token_positions = [tfidf_vectorizer.vocabulary_[token] for token in document]
+    idf = np.asarray(
+        [tfidf_vectorizer.idf_[token_position] for token_position in token_positions]
+    )
     document = np.asarray([wv[token] for token in document])
+    document = idf[:, np.newaxis] * document
 
     if strategy == "sum":
         document = np.sum(document, axis=0)
@@ -70,7 +83,11 @@ def vectorize(wv: KeyedVectors, document: list[str], strategy: str) -> np.ndarra
 
 
 def check_performance(
-    wv: KeyedVectors, knn: NearestNeighbors, questions: list, strategy: str
+    wv: KeyedVectors,
+    knn: NearestNeighbors,
+    questions: list,
+    strategy: str,
+    tfidf_vectorizer: TfidfVectorizer,
 ) -> float:
     """
     Calculate performance of finding similar questions
@@ -83,6 +100,8 @@ def check_performance(
         input questions
     :param strategy: str
         strategy of transforming word vectors
+    :param tfidf_vectorizer: TfidfVectorizer
+        TF-IDF vectorizer
     :return:
         score (lesser is better)
     """
@@ -96,7 +115,9 @@ def check_performance(
     test_questions = [list(tokenize(tq.lower())) for tq in test_questions]
     for i, tq in enumerate(test_questions):
         test_questions[i] = list(filter(lambda x: x in wv.index_to_key, tq))
-    test_questions = np.asarray([vectorize(wv, tq, strategy) for tq in test_questions])
+    test_questions = np.asarray(
+        [vectorize(wv, tq, strategy, tfidf_vectorizer) for tq in test_questions]
+    )
     _, indices = knn.kneighbors(test_questions)
 
     original = [list(tokenize(o.lower())) for o in original]
