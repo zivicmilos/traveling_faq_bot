@@ -38,7 +38,7 @@ def custom_word_vectors() -> None:
     tfidf_vectorizer.fit_transform([" ".join(question) for question in questions])
 
     vectorized_questions = np.asarray(
-        [vectorize(wv, tfidf_vectorizer, question) for question in questions]
+        [vectorize(wv, question, tfidf_vectorizer) for question in questions]
     )
     print("Questions vectorized")
 
@@ -47,7 +47,7 @@ def custom_word_vectors() -> None:
     )
     print("KNN fitted")
 
-    score = check_performance(wv, knn, tfidf_vectorizer, questions)
+    score = check_performance(wv, knn, questions, tfidf_vectorizer)
     print(f"Score: {score:.2f} | ETA: {time.time() - start_time:.2f}s")
 
 

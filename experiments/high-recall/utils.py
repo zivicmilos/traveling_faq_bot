@@ -53,22 +53,21 @@ def train_save_word2vec(corpus: list[list[str]]) -> tuple[Word2Vec, KeyedVectors
 
 
 def vectorize(
-    wv: KeyedVectors, tfidf_vectorizer: TfidfVectorizer, document: list[str]
+    wv: KeyedVectors, document: list[str], tfidf_vectorizer: TfidfVectorizer = None
 ) -> np.ndarray:
     """
     Transforms documents to vectors
 
     :param wv: KeyedVectors
         vectors of all words from vocabulary
-    :param tfidf_vectorizer: TfidfVectorizer
-        TF-IDF vectorizer
     :param document:
         input document from corpus
+    :param tfidf_vectorizer: TfidfVectorizer
+        TF-IDF vectorizer
     :return:
         vector representation of question
     """
     if SENTENCE_VECTOR_WEIGHT == "idf":
-        print("IDF")
         idf = np.asarray(
             [
                 tfidf_vectorizer.idf_[tfidf_vectorizer.vocabulary_[token]]
@@ -78,21 +77,18 @@ def vectorize(
         document = np.asarray([wv[token] for token in document])
         document = idf[:, np.newaxis] * document
     elif SENTENCE_VECTOR_WEIGHT == "pos":
-        print("POS")
         doc = nlp(" ".join(document))
         pos = np.asarray([POS.get(token.pos_, 1.0) for token in doc])
 
         document = np.asarray([wv[token] for token in document])
         document = pos[:, np.newaxis] * document
     elif SENTENCE_VECTOR_WEIGHT == "ner":
-        print("NER")
         doc = nlp(" ".join(document))
         ner = np.asarray([NER.get(token.ent_type_, 1.0) for token in doc])
 
         document = np.asarray([wv[token] for token in document])
         document = ner[:, np.newaxis] * document
     elif SENTENCE_VECTOR_WEIGHT == "pos+ner":
-        print("POS+NER")
         doc = nlp(" ".join(document))
         pos = np.asarray([POS.get(token.pos_, 1.0) for token in doc])
         ner = np.asarray([NER.get(token.ent_type_, 1.0) for token in doc])
@@ -118,8 +114,8 @@ def vectorize(
 def check_performance(
     wv: KeyedVectors,
     knn: NearestNeighbors,
-    tfidf_vectorizer: TfidfVectorizer,
     corpus: list[list[str]],
+    tfidf_vectorizer: TfidfVectorizer = None
 ) -> float:
     """
     Calculate performance of finding similar questions
@@ -128,10 +124,10 @@ def check_performance(
         vectors of all words from vocabulary
     :param knn: NearestNeighbors
         K-nearest neighbors
-    :param tfidf_vectorizer: TfidfVectorizer
-        TF-IDF vectorizer
     :param corpus: list
         input corpus of documents
+    :param tfidf_vectorizer: TfidfVectorizer
+        TF-IDF vectorizer
     :return:
         score (lesser is better)
     """
@@ -146,7 +142,7 @@ def check_performance(
     for i, tq in enumerate(test_questions):
         test_questions[i] = list(filter(lambda x: x in wv.index_to_key, tq))
     test_questions = np.asarray(
-        [vectorize(wv, tfidf_vectorizer, tq) for tq in test_questions]
+        [vectorize(wv, tq, tfidf_vectorizer) for tq in test_questions]
     )
     _, indices = knn.kneighbors(test_questions)
 
