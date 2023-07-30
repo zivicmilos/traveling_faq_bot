@@ -38,6 +38,7 @@ class DocumentLevelVectorization:
     :attr: vectorized_questions: Iterable
         vectorized representation of input questions
     """
+
     def __init__(
         self,
         n_neighbours: int = 100,
@@ -47,7 +48,7 @@ class DocumentLevelVectorization:
         preprocessing: str = "stemming",
         stemmer: str = "snowball",
         stop_words: str = None,
-        ngram_range: Tuple[int, int] = (1, 1)
+        ngram_range: Tuple[int, int] = (1, 1),
     ):
         """
         Initialize DocumentLevelVectorization class
@@ -205,7 +206,7 @@ if __name__ == "__main__":
         preprocessing="stemming",
         stemmer="snowball",
         stop_words="english",
-        ngram_range=(1, 1)
+        ngram_range=(1, 1),
     )
     similar_documents = document_level_vectorization.get_n_similar_documents(
         "Why Do They Take Bloods And Urine For Lifes Insurance?"

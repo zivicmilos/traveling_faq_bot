@@ -4,6 +4,7 @@ import time
 
 import numpy as np
 import spacy
+from gensim import downloader
 from gensim.models import Word2Vec, KeyedVectors
 from gensim.utils import tokenize
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -17,9 +18,9 @@ POS = {"NOUN": 5.0, "PROPN": 6.0, "VERB": 2.0, "ADJ": 4.0}
 NER = {"MONEY": 6.0, "CARDINAL": 5.0, "DATE ": 4.0, "FAC ": 4.0}
 
 
-class CustomWord2Vec:
+class WordLevelVectorization:
     """
-    Represents custom Word2Vec model
+    Represents WordLevelVectorization model
 
     :attr: train: bool
         train Word2Vec model
@@ -29,6 +30,8 @@ class CustomWord2Vec:
         metric to be used in KNN, e.g. "euclidean", "cityblock", "cosine"
     :attr: logging: bool
         log during execution
+    :attr: word_vectors: str
+        word vectors strategy, e.g. "custom" or "pretrained"
     :attr: strategy: str
         strategy of transforming word vectors to sentence vector, e.g. "sum", "average"
     :attr: weight: str
@@ -49,6 +52,7 @@ class CustomWord2Vec:
         n_neighbours: int = 100,
         metric: str = "cosine",
         logging: bool = True,
+        word_vectors: str = "custom",
         strategy: str = "sum",
         weight: str = None,
     ):
@@ -63,6 +67,8 @@ class CustomWord2Vec:
             metric to be used in KNN, e.g. "euclidean", "cityblock", "cosine"
         :param logging: bool
             log during execution
+        :param word_vectors: str
+            word vectors strategy, e.g. "custom" or "pretrained"
         :param strategy: str
             strategy of transforming word vectors to sentence vector, e.g. "sum", "average"
         :param weight: str
@@ -72,6 +78,7 @@ class CustomWord2Vec:
         self.n_neighbours = n_neighbours
         self.metric = metric
         self.logging = logging
+        self.word_vectors = word_vectors
         self.strategy = strategy
         self.weight = weight
 
@@ -86,11 +93,24 @@ class CustomWord2Vec:
             if self.logging:
                 print("Word2Vec model trained and saved")
         else:
-            _, self.wv = Word2Vec.load("word2vec.model"), KeyedVectors.load(
-                "word2vec.wordvectors", mmap="r"
-            )
-            if self.logging:
-                print("Word2Vec model loaded")
+            if self.word_vectors == "custom":
+                _, self.wv = Word2Vec.load("word2vec.model"), KeyedVectors.load(
+                    "word2vec.wordvectors", mmap="r"
+                )
+                if self.logging:
+                    print("Custom Word2Vec model loaded")
+            elif self.word_vectors == "pretrained":
+                self.wv = downloader.load("glove-wiki-gigaword-50")
+                for i, question in enumerate(self.questions):
+                    self.questions[i] = list(
+                        filter(lambda x: x in self.wv.index_to_key, question)
+                    )
+                if self.logging:
+                    print("Pretrained Word2Vec model loaded")
+            else:
+                raise ValueError(
+                    f"Word vectors {self.word_vectors} are not supported. Try 'custom' or 'pretrained'"
+                )
 
         if weight == "idf":
             self.tfidf_vectorizer = TfidfVectorizer(token_pattern="(?u)\\b\\w+\\b")
@@ -226,15 +246,16 @@ class CustomWord2Vec:
 
 
 if __name__ == "__main__":
-    custom_word2vec = CustomWord2Vec(
+    word_level_vectorization = WordLevelVectorization(
         train=False,
         n_neighbours=100,
         metric="cosine",
         logging=True,
+        word_vectors="custom",
         strategy="sum",
         weight=None,
     )
-    similar_documents = custom_word2vec.get_n_similar_documents(
+    similar_documents = word_level_vectorization.get_n_similar_documents(
         "Why Do They Take Bloods And Urine For Lifes Insurance?"
     )
     print(similar_documents)
