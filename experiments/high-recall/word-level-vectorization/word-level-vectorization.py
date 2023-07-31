@@ -101,9 +101,9 @@ class WordLevelVectorization:
                     print("Custom Word2Vec model loaded")
             elif self.word_vectors == "pretrained":
                 self.wv = downloader.load("glove-wiki-gigaword-50")
-                for i, question in enumerate(self.questions):
-                    self.questions[i] = list(
-                        filter(lambda x: x in self.wv.index_to_key, question)
+                for i, document in enumerate(self.documents):
+                    self.documents[i] = list(
+                        filter(lambda x: x in self.wv.index_to_key, document)
                     )
                 if self.logging:
                     print("Pretrained Word2Vec model loaded")
