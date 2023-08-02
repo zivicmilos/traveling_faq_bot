@@ -1,10 +1,15 @@
 import json
+import os
 from typing import Collection
 
 import numpy as np
 import pandas as pd
 from sklearn.neighbors import NearestNeighbors
 from transformers import BertTokenizer, TFBertModel
+
+
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.abspath(os.path.join(CURRENT_DIR, "..", "..", "..", "data"))
 
 
 def batch(iterable: Collection, n: int = 1) -> Collection:
@@ -70,7 +75,7 @@ class FinBERTEmbeddings:
         self.logging = logging
         self.embeddings = []
 
-        df = pd.read_csv("../../../data/insurance_qna_dataset.csv", sep="\t")
+        df = pd.read_csv(os.path.join(DATA_DIR, "insurance_qna_dataset.csv"), sep="\t")
         df.drop(columns=df.columns[0], axis=1, inplace=True)
         self.questions = np.unique(df.iloc[:, 0].to_numpy())
         self.questions = self.questions.tolist()
@@ -97,9 +102,9 @@ class FinBERTEmbeddings:
                 print((i + 1) * 128)
 
             self.embeddings = np.asarray(self.embeddings)
-            np.save("finbert_emmbedings.npy", self.embeddings)
+            np.save(os.path.join(CURRENT_DIR, "finbert_emmbedings.npy"), self.embeddings)
         else:
-            self.embeddings = np.load("finbert_emmbedings.npy")
+            self.embeddings = np.load(os.path.join(CURRENT_DIR, "finbert_emmbedings.npy"))
 
     def check_performance(self, knn: NearestNeighbors) -> float:
         """
@@ -111,7 +116,7 @@ class FinBERTEmbeddings:
             score (lesser is better)
         """
         print("Performance check started")
-        with open("../../../data/test_questions_json.json") as json_file:
+        with open(os.path.join(DATA_DIR, "test_questions_json.json")) as json_file:
             json_data = json.load(json_file)
 
         test_questions = json_data["question"]
@@ -125,9 +130,9 @@ class FinBERTEmbeddings:
             output = self.model(encoded_text)[1].numpy().reshape(-1)
             output = np.array_split(output, 60)
             tq = np.asarray(output)
-            np.save("finbert_emmbedings_test.npy", tq)
+            np.save(os.path.join(CURRENT_DIR, "finbert_emmbedings_test.npy"), tq)
         else:
-            tq = np.load("finbert_emmbedings_test.npy")
+            tq = np.load(os.path.join(CURRENT_DIR, "finbert_emmbedings_test.npy"))
 
         _, indices = knn.kneighbors(tq)
 

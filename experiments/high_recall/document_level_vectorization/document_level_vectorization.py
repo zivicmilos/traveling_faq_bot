@@ -1,4 +1,5 @@
 import json
+import os
 import time
 from typing import Iterable, Tuple
 
@@ -9,6 +10,9 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.neighbors import NearestNeighbors
 
 from preprocessing import stem_document, lemmatize_document
+
+
+DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "data"))
 
 
 class DocumentLevelVectorization:
@@ -82,7 +86,7 @@ class DocumentLevelVectorization:
         nltk.download("punkt")  # used for tokenization
         nltk.download("wordnet")  # used for lemmatization
 
-        df = pd.read_csv("../../../data/insurance_qna_dataset.csv", sep="\t")
+        df = pd.read_csv(os.path.join(DATA_DIR, "insurance_qna_dataset.csv"), sep="\t")
         df.drop(columns=df.columns[0], axis=1, inplace=True)
 
         if self.vectorizer_type == "tf":
@@ -137,7 +141,7 @@ class DocumentLevelVectorization:
             score (lesser is better)
         """
         print("Performance check started")
-        with open("../../../data/test_questions_json.json") as json_file:
+        with open(os.path.join(DATA_DIR, "test_questions_json.json")) as json_file:
             json_data = json.load(json_file)
 
         test_questions = json_data["question"]

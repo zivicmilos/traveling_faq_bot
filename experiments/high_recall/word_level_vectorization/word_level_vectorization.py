@@ -1,4 +1,5 @@
 import json
+import os
 import re
 import time
 
@@ -11,11 +12,13 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.neighbors import NearestNeighbors
 from spacy.tokenizer import Tokenizer
 
-from utils import load_dataset, train_save_word2vec
+from experiments.high_recall.word_level_vectorization.utils import load_dataset, train_save_word2vec
 
 
 POS = {"NOUN": 5.0, "PROPN": 6.0, "VERB": 2.0, "ADJ": 4.0}
 NER = {"MONEY": 6.0, "CARDINAL": 5.0, "DATE ": 4.0, "FAC ": 4.0}
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.abspath(os.path.join(CURRENT_DIR, "..", "..", "..", "data"))
 
 
 class WordLevelVectorization:
@@ -82,7 +85,7 @@ class WordLevelVectorization:
         self.strategy = strategy
         self.weight = weight
 
-        df = load_dataset("../../../data/insurance_qna_dataset.csv")
+        df = load_dataset(os.path.join(DATA_DIR, "insurance_qna_dataset.csv"))
         self.questions = np.unique(df.iloc[:, 0].to_numpy())
         self.documents = [
             list(tokenize(question.lower())) for question in self.questions
@@ -94,8 +97,8 @@ class WordLevelVectorization:
                 print("Word2Vec model trained and saved")
         else:
             if self.word_vectors == "custom":
-                _, self.wv = Word2Vec.load("word2vec.model"), KeyedVectors.load(
-                    "word2vec.wordvectors", mmap="r"
+                _, self.wv = Word2Vec.load(os.path.join(CURRENT_DIR, "word2vec.model")), KeyedVectors.load(
+                    os.path.join(CURRENT_DIR, "word2vec.wordvectors"), mmap="r"
                 )
                 if self.logging:
                     print("Custom Word2Vec model loaded")
@@ -185,7 +188,7 @@ class WordLevelVectorization:
             score (lesser is better)
         """
         print("Performance check started")
-        with open("../../../data/test_questions_json.json") as json_file:
+        with open((os.path.join(DATA_DIR, "test_questions_json.json"))) as json_file:
             json_data = json.load(json_file)
 
         test_questions = json_data["question"]
