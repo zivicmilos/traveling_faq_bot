@@ -177,6 +177,9 @@ def read_root(question: Question):
 
     index_max = np.argmax(output)
 
+    if output[index_max] < 0.7:
+        return "Sorry, but I do not understand your question. Can you rephrase it and try again?"
+
     return find_answer(candidates_[index_max])
 
 
