@@ -1,9 +1,15 @@
-function ListGroup() {
-	let items = ['Question 1', 'Answer 1', 'Question 2', 'Answer 2'];
+import "./ListGroup.css";
 
-	return <ul className="list-group">
-		{items.map(item => <li key={item} className="list-group-item border-0">{item}</li>)}
-	</ul>
+function ListGroup({ items }) {
+  return (
+    <ul className="item-group w-50 pb-10 pt-6">
+      {items.map((item) => (
+        <li key={item} className="list-group-item border-0 pb-3">
+          {item}
+        </li>
+      ))}
+    </ul>
+  );
 }
 
 export default ListGroup;

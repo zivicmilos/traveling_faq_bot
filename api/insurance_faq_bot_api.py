@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import uvicorn
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from keras.layers import Input, Embedding, LSTM, Lambda
 from keras.models import Model
 from keras.utils import pad_sequences
@@ -16,21 +17,20 @@ from experiments.high_precision.high_precision_modeling import (
     exponent_neg_manhattan_distance,
     text_to_word_list,
 )
+from experiments.high_recall.document_level_vectorization.document_level_vectorization import DocumentLevelVectorization
+from experiments.high_recall.finbert_embeddings.finbert_embeddings import FinBERTEmbeddings
 from experiments.high_recall.word_level_vectorization.word_level_vectorization import (
     WordLevelVectorization,
 )
 
 
-WORD_VECTORS = "pretrained"
-
-
-def get_model():
-    if WORD_VECTORS == "custom":
+def get_model(model: str):
+    if model == "custom":
         embedding_dim = 100
         embeddings = np.load(
             "../experiments/high_precision/embeddings/custom_wv_embeddings.npy"
         )
-    elif WORD_VECTORS == "pretrained":
+    else:
         embedding_dim = 300
         embeddings = np.load(
             "../experiments/high_precision/embeddings/pretrained_wv_embeddings.npy"
@@ -80,25 +80,71 @@ def find_answer(question: str) -> str:
 
 app = FastAPI()
 
+allowed_origins = [
+    "http://localhost",
+    "http://localhost:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all HTTP methods
+    allow_headers=["*"],  # Allow all headers
+)
+
 
 class Question(BaseModel):
     question: str
+    model: str
 
 
 @app.post("/faq/questions")
 def read_root(question: Question):
-    word_level_vectorization = WordLevelVectorization(
-        train=False,
-        n_neighbours=100,
-        metric="cosine",
-        logging=False,
-        word_vectors="custom",
-        strategy="sum",
-        weight=None,
-    )
-    candidates = word_level_vectorization.get_n_similar_documents(question.question)
+    if question.model in ["custom", "pretrained"]:
+        high_recall_model = WordLevelVectorization(
+            train=False,
+            n_neighbours=100,
+            metric="cosine",
+            logging=False,
+            word_vectors=question.model,
+            strategy="sum",
+            weight=None,
+        )
+    elif question.model in ["tf", "tf-idf"]:
+        high_recall_model = DocumentLevelVectorization(
+            n_neighbours=100,
+            metric="cosine",
+            logging=False,
+            vectorizer_type=question.model,
+            preprocessing="stemming",
+            stemmer="snowball",
+            stop_words="english",
+            ngram_range=(1, 1),
+        )
+    else:
+        high_recall_model = FinBERTEmbeddings(
+            train=False,
+            n_neighbours=100,
+            metric="cosine",
+            logging=False,
+        )
+
+    candidates = high_recall_model.get_n_similar_documents(question.question)
     candidates_ = candidates.copy()
     questions = [question.question for _ in range(len(candidates))]
+
+    if question.model == "custom":
+        with open(
+            "../experiments/high_precision/vocabulary/vocabulary_custom_wv.pkl", "rb"
+        ) as f:
+            vocabulary = pickle.load(f)
+    else:
+        with open(
+            "../experiments/high_precision/vocabulary/vocabulary_pretrained_wv.pkl",
+            "rb",
+        ) as f:
+            vocabulary = pickle.load(f)
 
     for i, c in enumerate(candidates):
         candidates[i] = [
@@ -115,16 +161,16 @@ def read_root(question: Question):
     candidates = pad_sequences(candidates, maxlen=212)
     questions = pad_sequences(questions, maxlen=212)
 
-    model = get_model()
-    if WORD_VECTORS == "custom":
-        model.load_weights(
+    high_precision_model = get_model(question.model)
+    if question.model == "custom":
+        high_precision_model.load_weights(
             "../experiments/high_precision/weights/malstm_weights_custom_wv.h5"
         )
-    elif WORD_VECTORS == "pretrained":
-        model.load_weights(
+    else:
+        high_precision_model.load_weights(
             "../experiments/high_precision/weights/malstm_weights_pretrained_wv.h5"
         )
-    output = model.predict([questions, candidates])
+    output = high_precision_model.predict([questions, candidates])
     output = list(itertools.chain.from_iterable(output))
 
     index_max = np.argmax(output)
@@ -135,17 +181,5 @@ def read_root(question: Question):
 if __name__ == "__main__":
     nltk.download("stopwords")
     stops = set(stopwords.words("english"))
-
-    if WORD_VECTORS == "custom":
-        with open(
-            "../experiments/high_precision/vocabulary/vocabulary_custom_wv.pkl", "rb"
-        ) as f:
-            vocabulary = pickle.load(f)
-    elif WORD_VECTORS == "pretrained":
-        with open(
-            "../experiments/high_precision/vocabulary/vocabulary_pretrained_wv.pkl",
-            "rb",
-        ) as f:
-            vocabulary = pickle.load(f)
 
     uvicorn.run(app, host="127.0.0.1", port=8000)

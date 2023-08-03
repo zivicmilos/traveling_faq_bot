@@ -1,0 +1,8 @@
+.box {
+    display: flex;
+    justify-content: center;
+  }
+
+.pt-25 {
+  padding-top: 20%;
+}

@@ -9,7 +9,7 @@ import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.neighbors import NearestNeighbors
 
-from preprocessing import stem_document, lemmatize_document
+from experiments.high_recall.document_level_vectorization.preprocessing import stem_document, lemmatize_document
 
 
 DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "data"))
@@ -103,8 +103,8 @@ class DocumentLevelVectorization:
             )
 
         self.questions = df.iloc[:, 0].to_numpy()
-        self.questions = self.preprocess_documents(self.questions)
-        self.vectorized_questions = self.vectorizer.fit_transform(self.questions)
+        self.vectorized_questions = self.preprocess_documents(self.questions)
+        self.vectorized_questions = self.vectorizer.fit_transform(self.vectorized_questions)
         self.vectorized_questions = np.unique(
             self.vectorized_questions.toarray(), axis=0
         )
