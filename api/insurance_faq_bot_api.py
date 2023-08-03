@@ -97,6 +97,8 @@ app.add_middleware(
 class Question(BaseModel):
     question: str
     model: str
+    preprocessing: str
+    weight: str
 
 
 @app.post("/faq/questions")
@@ -109,7 +111,7 @@ def read_root(question: Question):
             logging=False,
             word_vectors=question.model,
             strategy="sum",
-            weight=None,
+            weight=question.weight,
         )
     elif question.model in ["tf", "tf-idf"]:
         high_recall_model = DocumentLevelVectorization(
@@ -117,7 +119,7 @@ def read_root(question: Question):
             metric="cosine",
             logging=False,
             vectorizer_type=question.model,
-            preprocessing="stemming",
+            preprocessing=question.preprocessing,
             stemmer="snowball",
             stop_words="english",
             ngram_range=(1, 1),

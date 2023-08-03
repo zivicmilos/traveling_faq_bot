@@ -13,6 +13,8 @@ function App() {
   const [items, setItems] = useState(initialState);
   const [resetTextArea, setResetTextArea] = useState(false);
   const [model, setModel] = useState("pretrained");
+  const [preprocessing, setPreprocessing] = useState(false);
+  const [weight, setWeight] = useState(true);
 
   useEffect(() => {
     storeData("items", items);
@@ -26,6 +28,8 @@ function App() {
     const q = {
       question: question,
       model: model,
+      preprocessing: preprocessing,
+      weight: weight,
     };
     setItems((current) => [...current, "Q: " + question]);
     getAnswer(q).then((data) => {
@@ -42,14 +46,40 @@ function App() {
 
   const onChangeValue = (e) => {
     console.log(e.target.value);
+    if (e.target.value === "tf" || e.target.value === "tf-idf") {
+      setPreprocessing(true);
+      setWeight(false);
+    } else if (e.target.value === "custom" || e.target.value === "pretrained") {
+      setPreprocessing(false);
+      setWeight(true);
+    } else {
+      setPreprocessing(false);
+      setWeight(false);
+    }
     setModel(e.target.value);
+  };
+
+  const onChangePreprocessing = (e) => {
+    console.log(e.target.value);
+    setPreprocessing(e.target.value);
+  };
+
+  const onChangeWeight = (e) => {
+    console.log(e.target.value);
+    setWeight(e.target.value);
   };
 
   return (
     <div className="App">
       <Navbar handleReset={handleReset} />
       <div className="hstack">
-        <RadioButtons onChangeValue={onChangeValue} />
+        <RadioButtons
+          preprocessing={preprocessing}
+          weight={weight}
+          onChangeValue={onChangeValue}
+          onChangePreprocessing={onChangePreprocessing}
+          onChangeWeight={onChangeWeight}
+        />
         {items.length !== 0 && <ListGroup items={items} />}
         {items.length === 0 && (
           <div className="d-flex justify-content-center pt-25 w-50">
