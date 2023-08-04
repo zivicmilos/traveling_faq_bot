@@ -11,7 +11,6 @@ function App() {
   const initialState = () => getData("items") || [];
   const [data, setData] = useState("");
   const [items, setItems] = useState(initialState);
-  const [resetTextArea, setResetTextArea] = useState(false);
   const [model, setModel] = useState("pretrained");
   const [preprocessing, setPreprocessing] = useState(false);
   const [weight, setWeight] = useState(true);
@@ -37,7 +36,7 @@ function App() {
       setItems((current) => [...current, "A: " + data]);
     });
 
-    setResetTextArea(!resetTextArea);
+    setData("")
   };
 
   const handleReset = (e) => {
@@ -80,8 +79,8 @@ function App() {
           onChangePreprocessing={onChangePreprocessing}
           onChangeWeight={onChangeWeight}
         />
-        {items.length !== 0 && <ListGroup items={items} />}
-        {items.length === 0 && (
+        {items.length && <ListGroup items={items} />}
+        {!items.length && (
           <div className="d-flex justify-content-center pt-25 w-50">
             <div>Feel free to ask any insurance-related question :)</div>
           </div>
@@ -89,8 +88,8 @@ function App() {
       </div>
       <div className="fixed-bottom justify-content-center hstack gap-3 pb-3 pt-3 bg-body-tertiary">
         <QuestionBox
-          resetTextArea={resetTextArea}
           setData={setData}
+          data={data}
           onEnter={handleSubmit(data)}
         />
       </div>
