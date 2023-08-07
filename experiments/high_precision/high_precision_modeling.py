@@ -232,16 +232,25 @@ if __name__ == "__main__":
         )
     )
 
+    # if WORD_VECTORS == "custom":
+    #     with open('../high_precision/vocabulary/vocabulary_custom_wv.pkl', 'wb') as f:
+    #         pickle.dump(vocabulary, f)
+    #     np.save("../high_precision/embeddings/custom_wv_embeddings.npy", embeddings)
+    #     malstm.save_weights("../high_precision/weights/malstm_weights_custom_wv.h5")
+    # elif WORD_VECTORS == "pretrained":
+    #     with open('../high_precision/vocabulary/vocabulary_pretrained_wv.pkl', 'wb') as f:
+    #         pickle.dump(vocabulary, f)
+    #     np.save("../high_precision/embeddings/pretrained_wv_embeddings.npy", embeddings)
+    #     malstm.save_weights("../high_precision/weights/malstm_weights_pretrained_wv.h5")
+
     if WORD_VECTORS == "custom":
         with open('../high_precision/vocabulary/vocabulary_custom_wv.pkl', 'wb') as f:
             pickle.dump(vocabulary, f)
-        np.save("../high_precision/embeddings/custom_wv_embeddings.npy", embeddings)
-        malstm.save_weights("../high_precision/weights/malstm_weights_custom_wv.h5")
+        malstm.save("../high_precision/model/malstm_model_custom_wv.h5")
     elif WORD_VECTORS == "pretrained":
         with open('../high_precision/vocabulary/vocabulary_pretrained_wv.pkl', 'wb') as f:
             pickle.dump(vocabulary, f)
-        np.save("../high_precision/embeddings/pretrained_wv_embeddings.npy", embeddings)
-        malstm.save_weights("../high_precision/weights/malstm_weights_pretrained_wv.h5")
+        malstm.save("../high_precision/model/malstm_model_pretrained_wv.h5")
 
     # Plot accuracy
     plt.plot(malstm_trained.history["accuracy"])
