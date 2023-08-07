@@ -104,10 +104,10 @@ class DocumentLevelVectorization(HighRecall):
             )
 
         self.questions = df.iloc[:, 0].to_numpy()
-        self.vectorized_questions = self.transform(self.questions)
-        self.vectorized_questions = self.vectorizer.fit_transform(self.vectorized_questions)
+        self.questions_ = self.transform(self.questions)
+        self.questions_ = self.vectorizer.fit_transform(self.questions_)
         self.vectorized_questions = np.unique(
-            self.vectorized_questions.toarray(), axis=0
+            self.questions_.toarray(), axis=0
         )
         if self.logging:
             print("TF applied")
@@ -189,15 +189,21 @@ class DocumentLevelVectorization(HighRecall):
             score = self.check_performance(knn)
             print(f"Score: {score:.2f} | ETA: {time.time() - start_time:.2f}s")
 
-        document = self.transform(document)
         if type(document) == str:
             document = [document]
+        document = self.transform(document)
         document = self.vectorizer.transform(document)
 
         _, indices = knn.kneighbors(document)
 
-        similar_documents = [self.questions[i] for i in indices]
-        similar_documents = similar_documents[0].tolist()
+        similar_documents = [self.vectorized_questions[i] for i in indices][0]
+        similar_documents = list(
+            map(set, self.vectorizer.inverse_transform(similar_documents))
+        )
+        questions = list(
+            map(set, self.vectorizer.inverse_transform(self.questions_))
+        )
+        similar_documents = [self.questions[questions.index(sd)] for sd in similar_documents]
 
         return similar_documents
 
