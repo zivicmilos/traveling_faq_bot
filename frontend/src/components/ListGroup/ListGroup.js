@@ -1,6 +1,9 @@
 import "./ListGroup.css";
+import { useStore } from "../../helpers/store";
 
-function ListGroup({ items }) {
+function ListGroup() {
+  const items = useStore((state) => state.items);
+
   return (
     <ul className="item-group w-50 pb-10 pt-6">
       {items.map((item) => (

@@ -1,6 +1,9 @@
 import "./Navbar.css";
+import { useStore } from "../../helpers/store";
 
-function Navbar({ handleReset }) {
+function Navbar() {
+  const handleReset = useStore((state) => state.handleReset);
+
   return (
     <nav className="fixed-top navbar navbar-expand-lg bg-body-tertiary">
       <div className="collapse navbar-collapse" id="navbarNav">

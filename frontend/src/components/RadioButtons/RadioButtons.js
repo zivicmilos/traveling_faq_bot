@@ -1,12 +1,38 @@
 import "./RadioButtons.css";
+import { useStore } from "../../helpers/store";
 
-function RadioButtons({
-  preprocessing,
-  weight,
-  onChangeModel,
-  onChangePreprocessing,
-  onChangeWeight,
-}) {
+function RadioButtons() {
+  const preprocessing = useStore((state) => state.preprocessing);
+  const weight = useStore((state) => state.weight);
+  const setModel = useStore((state) => state.setModel);
+  const setPreprocessing = useStore((state) => state.setPreprocessing);
+  const setWeight = useStore((state) => state.setWeight);
+
+  const onChangeModel = (e) => {
+    console.log(e.target.value);
+    if (e.target.value === "tf" || e.target.value === "tf-idf") {
+      setPreprocessing(true);
+      setWeight(false);
+    } else if (e.target.value === "custom" || e.target.value === "pretrained") {
+      setPreprocessing(false);
+      setWeight(true);
+    } else {
+      setPreprocessing(false);
+      setWeight(false);
+    }
+    setModel(e.target.value);
+  };
+
+  const onChangePreprocessing = (e) => {
+    console.log(e.target.value);
+    setPreprocessing(e.target.value);
+  };
+
+  const onChangeWeight = (e) => {
+    console.log(e.target.value);
+    setWeight(e.target.value);
+  };
+
   return (
     <div className="w-25 px-3 pt-6">
       <div onChange={onChangeModel}>

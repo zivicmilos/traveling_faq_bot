@@ -1,7 +1,45 @@
 import "./QuestionBox.css";
+import { useStore } from "../../helpers/store";
+import { getAnswer } from "../../services/faq-service";
+import { storeData } from "../../helpers/local-storage";
+import { useEffect } from "react";
 
-function QuestionBox({ question, setQuestion, onEnter }) {
+function QuestionBox() {
+  const items = useStore((state) => state.items);
+  const question = useStore((state) => state.question);
+  const setQuestion = useStore((state) => state.setQuestion);
+  const model = useStore((state) => state.model);
+  const preprocessing = useStore((state) => state.preprocessing);
+  const weight = useStore((state) => state.weight);
+  const addItem = useStore((state) => state.addItem);
+
   const handleChange = (e) => setQuestion(e.target.value);
+
+  const handleSubmit = (question) => (e) => {
+    if (e.key !== "Enter") return;
+
+    e.preventDefault();
+    console.log(question);
+    const q = {
+      question: question,
+      model: model,
+      preprocessing: preprocessing,
+      weight: weight,
+    };
+    let item = { id: items.length, item: "Q: " + question };
+    addItem(item);
+    getAnswer(q).then((answer) => {
+      console.log(answer);
+      let item = { id: items.length + 1, item: "A: " + answer };
+      addItem(item);
+    });
+
+    setQuestion("");
+  };
+
+  useEffect(() => {
+    storeData("items", items);
+  }, [items]);
 
   return (
     <textarea
@@ -9,7 +47,7 @@ function QuestionBox({ question, setQuestion, onEnter }) {
       placeholder="Here you can input you question..."
       onChange={handleChange}
       value={question}
-      onKeyDown={onEnter}
+      onKeyDown={handleSubmit(question)}
     ></textarea>
   );
 }
