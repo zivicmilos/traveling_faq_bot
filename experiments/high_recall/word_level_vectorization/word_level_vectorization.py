@@ -12,6 +12,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.neighbors import NearestNeighbors
 from spacy.tokenizer import Tokenizer
 
+from experiments.high_recall.HighRecall import HighRecall
 from experiments.high_recall.word_level_vectorization.utils import load_dataset, train_save_word2vec
 
 
@@ -21,7 +22,7 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.abspath(os.path.join(CURRENT_DIR, "..", "..", "..", "data"))
 
 
-class WordLevelVectorization:
+class WordLevelVectorization(HighRecall):
     """
     Represents WordLevelVectorization model
 
@@ -126,7 +127,7 @@ class WordLevelVectorization:
                 self.nlp.vocab, token_match=re.compile(r"\S+").match
             )
 
-    def vectorize(self, document: list[str]) -> np.ndarray:
+    def transform(self, document: list[str]) -> np.ndarray:
         """
         Transforms documents to vectors
 
@@ -197,7 +198,7 @@ class WordLevelVectorization:
         test_questions = [list(tokenize(tq.lower())) for tq in test_questions]
         for i, tq in enumerate(test_questions):
             test_questions[i] = list(filter(lambda x: x in self.wv.index_to_key, tq))
-        test_questions = np.asarray([self.vectorize(tq) for tq in test_questions])
+        test_questions = np.asarray([self.transform(tq) for tq in test_questions])
         _, indices = knn.kneighbors(test_questions)
 
         original = [list(tokenize(o.lower())) for o in original]
@@ -221,7 +222,7 @@ class WordLevelVectorization:
         start_time = time.time()
 
         vectorized_questions = np.asarray(
-            [self.vectorize(question) for question in self.documents]
+            [self.transform(question) for question in self.documents]
         )
         if self.logging:
             print("Questions vectorized")
@@ -238,7 +239,7 @@ class WordLevelVectorization:
 
         document = tokenize(document.lower())
         document = list(filter(lambda x: x in self.wv.index_to_key, document))
-        document = np.asarray(self.vectorize(document)).reshape(1, -1)
+        document = np.asarray(self.transform(document)).reshape(1, -1)
 
         _, indices = knn.kneighbors(document)
 

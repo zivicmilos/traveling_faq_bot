@@ -9,13 +9,14 @@ import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.neighbors import NearestNeighbors
 
+from experiments.high_recall.HighRecall import HighRecall
 from experiments.high_recall.document_level_vectorization.preprocessing import stem_document, lemmatize_document
 
 
 DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "data"))
 
 
-class DocumentLevelVectorization:
+class DocumentLevelVectorization(HighRecall):
     """
     Represents DocumentLevelVectorization model
 
@@ -103,7 +104,7 @@ class DocumentLevelVectorization:
             )
 
         self.questions = df.iloc[:, 0].to_numpy()
-        self.vectorized_questions = self.preprocess_documents(self.questions)
+        self.vectorized_questions = self.transform(self.questions)
         self.vectorized_questions = self.vectorizer.fit_transform(self.vectorized_questions)
         self.vectorized_questions = np.unique(
             self.vectorized_questions.toarray(), axis=0
@@ -111,7 +112,7 @@ class DocumentLevelVectorization:
         if self.logging:
             print("TF applied")
 
-    def preprocess_documents(self, documents: Iterable[str]) -> Iterable[str]:
+    def transform(self, documents: Iterable[str]) -> Iterable[str]:
         """
         Applies preprocessing to iterable of documents
 
@@ -147,11 +148,11 @@ class DocumentLevelVectorization:
         test_questions = json_data["question"]
         original = json_data["original"]
 
-        test_questions = self.preprocess_documents(test_questions)
+        test_questions = self.transform(test_questions)
         test_questions = self.vectorizer.transform(test_questions)
         _, indices = knn.kneighbors(test_questions.toarray())
 
-        original = self.preprocess_documents(original)
+        original = self.transform(original)
         original = self.vectorizer.transform(original)
 
         original = list(map(set, self.vectorizer.inverse_transform(original)))
@@ -188,7 +189,7 @@ class DocumentLevelVectorization:
             score = self.check_performance(knn)
             print(f"Score: {score:.2f} | ETA: {time.time() - start_time:.2f}s")
 
-        document = self.preprocess_documents(document)
+        document = self.transform(document)
         if type(document) == str:
             document = [document]
         document = self.vectorizer.transform(document)

@@ -7,6 +7,7 @@ import pandas as pd
 from sklearn.neighbors import NearestNeighbors
 from transformers import BertTokenizer, TFBertModel
 
+from experiments.high_recall.HighRecall import HighRecall
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.abspath(os.path.join(CURRENT_DIR, "..", "..", "..", "data"))
@@ -28,7 +29,7 @@ def batch(iterable: Collection, n: int = 1) -> Collection:
         yield iterable[ndx : min(ndx + n, l)]
 
 
-class FinBERTEmbeddings:
+class FinBERTEmbeddings(HighRecall):
     """
     Represents FinBERT model
 
@@ -83,9 +84,9 @@ class FinBERTEmbeddings:
         self.tokenizer = BertTokenizer.from_pretrained("ProsusAI/finbert")
         self.model = TFBertModel.from_pretrained("ProsusAI/finbert")
 
-        self.transform_documents()
+        self.transform()
 
-    def transform_documents(self) -> None:
+    def transform(self) -> None:
         """
         Transforms input documents into embeddings
 
