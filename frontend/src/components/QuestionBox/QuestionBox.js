@@ -1,15 +1,14 @@
 import "./QuestionBox.css";
-import { useEffect, useState } from "react";
 
-function QuestionBox({  data, setData, onEnter }) {
-  const handleChange = (e) => setData(e.target.value)
+function QuestionBox({ question, setQuestion, onEnter }) {
+  const handleChange = (e) => setQuestion(e.target.value);
 
   return (
     <textarea
       className="form-control w-50 p-3"
       placeholder="Here you can input you question..."
       onChange={handleChange}
-      value={data}
+      value={question}
       onKeyDown={onEnter}
     ></textarea>
   );

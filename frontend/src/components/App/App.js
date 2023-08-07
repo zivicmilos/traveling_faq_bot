@@ -9,9 +9,9 @@ import RadioButtons from "../RadioButtons/RadioButtons";
 
 function App() {
   const initialState = () => getData("items") || [];
-  const [data, setData] = useState("");
+  const [question, setQuestion] = useState("");
   const [items, setItems] = useState(initialState);
-  const [model, setModel] = useState("pretrained");
+  const [model, setModel] = useState("custom");
   const [preprocessing, setPreprocessing] = useState(false);
   const [weight, setWeight] = useState(true);
 
@@ -30,20 +30,26 @@ function App() {
       preprocessing: preprocessing,
       weight: weight,
     };
-    setItems((current) => [...current, "Q: " + question]);
-    getAnswer(q).then((data) => {
-      console.log(data);
-      setItems((current) => [...current, "A: " + data]);
+    setItems((current) => [
+      ...current,
+      { id: items.length, item: "Q: " + question },
+    ]);
+    getAnswer(q).then((answer) => {
+      console.log(answer);
+      setItems((current) => [
+        ...current,
+        { id: items.length + 1, item: "A: " + answer },
+      ]);
     });
 
-    setData("")
+    setQuestion("");
   };
 
-  const handleReset = (e) => {
+  const handleReset = () => {
     setItems([]);
   };
 
-  const onChangeValue = (e) => {
+  const onChangeModel = (e) => {
     console.log(e.target.value);
     if (e.target.value === "tf" || e.target.value === "tf-idf") {
       setPreprocessing(true);
@@ -75,11 +81,11 @@ function App() {
         <RadioButtons
           preprocessing={preprocessing}
           weight={weight}
-          onChangeValue={onChangeValue}
+          onChangeModel={onChangeModel}
           onChangePreprocessing={onChangePreprocessing}
           onChangeWeight={onChangeWeight}
         />
-        {items.length && <ListGroup items={items} />}
+        {!!items.length && <ListGroup items={items} />}
         {!items.length && (
           <div className="d-flex justify-content-center pt-25 w-50">
             <div>Feel free to ask any insurance-related question :)</div>
@@ -88,9 +94,9 @@ function App() {
       </div>
       <div className="fixed-bottom justify-content-center hstack gap-3 pb-3 pt-3 bg-body-tertiary">
         <QuestionBox
-          setData={setData}
-          data={data}
-          onEnter={handleSubmit(data)}
+          question={question}
+          setQuestion={setQuestion}
+          onEnter={handleSubmit(question)}
         />
       </div>
     </div>

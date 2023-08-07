@@ -3,32 +3,32 @@ import "./RadioButtons.css";
 function RadioButtons({
   preprocessing,
   weight,
-  onChangeValue,
+  onChangeModel,
   onChangePreprocessing,
   onChangeWeight,
 }) {
   return (
     <div className="w-25 px-3 pt-6">
-      <div onChange={onChangeValue}>
+      <div onChange={onChangeModel}>
         <h5>Model</h5>
         <div className="form-check">
           <input
             className="form-check-input"
             type="radio"
             name="exampleRadios"
-            value="pretrained"
+            value="custom"
             defaultChecked
           />
-          <label className="form-check-label">Pretrained word vectors</label>
+          <label className="form-check-label">Custom word vectors</label>
         </div>
         <div className="form-check">
           <input
             className="form-check-input"
             type="radio"
             name="exampleRadios"
-            value="custom"
+            value="pretrained"
           />
-          <label className="form-check-label">Custom word vectors</label>
+          <label className="form-check-label">Pretrained word vectors</label>
         </div>
         <div className="form-check">
           <input
