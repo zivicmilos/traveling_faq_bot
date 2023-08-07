@@ -7,15 +7,16 @@ import { useStore } from "../../helpers/store";
 
 function App() {
   const items = useStore((state) => state.items);
+  const defaultModel = useStore((state) => state.defaultModel);
 
   return (
     <div className="App">
       <Navbar />
-      <div className="hstack">
-        <RadioButtons />
+      <div className="CentralBox hstack">
+        {defaultModel ? <div className="w-25 px-3"></div> : <RadioButtons />}
         {!!items.length && <ListGroup />}
         {!items.length && (
-          <div className="d-flex justify-content-center pt-25 w-50">
+          <div className="w-50 hstack justify-content-center">
             <div>Feel free to ask any insurance-related question :)</div>
           </div>
         )}

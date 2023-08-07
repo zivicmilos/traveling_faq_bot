@@ -6,12 +6,13 @@ import { useEffect } from "react";
 
 function QuestionBox() {
   const items = useStore((state) => state.items);
+  const addItem = useStore((state) => state.addItem);
   const question = useStore((state) => state.question);
   const setQuestion = useStore((state) => state.setQuestion);
   const model = useStore((state) => state.model);
   const preprocessing = useStore((state) => state.preprocessing);
   const weight = useStore((state) => state.weight);
-  const addItem = useStore((state) => state.addItem);
+  const defaultModel = useStore((state) => state.defaultModel);
 
   const handleChange = (e) => setQuestion(e.target.value);
 
@@ -25,6 +26,7 @@ function QuestionBox() {
       model: model,
       preprocessing: preprocessing,
       weight: weight,
+      defaultModel: defaultModel,
     };
     let item = { id: items.length, item: "Q: " + question };
     addItem(item);

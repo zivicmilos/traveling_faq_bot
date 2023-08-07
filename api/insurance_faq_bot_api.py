@@ -99,11 +99,14 @@ class Question(BaseModel):
     model: str
     preprocessing: str
     weight: str
+    defaultModel: bool
 
 
 @app.post("/faq/questions")
-def read_root(question: Question):
-    if question.model in ["custom", "pretrained"]:
+def get_answer(question: Question):
+    if question.defaultModel:
+        high_recall_model = preloaded_high_recall_model
+    elif question.model in ["custom", "pretrained"]:
         high_recall_model = WordLevelVectorization(
             train=False,
             n_neighbours=100,
@@ -186,5 +189,15 @@ def read_root(question: Question):
 if __name__ == "__main__":
     nltk.download("stopwords")
     stops = set(stopwords.words("english"))
+
+    preloaded_high_recall_model = WordLevelVectorization(
+        train=False,
+        n_neighbours=100,
+        metric="cosine",
+        logging=False,
+        word_vectors="pretrained",
+        strategy="sum",
+        weight=None,
+    )
 
     uvicorn.run(app, host="127.0.0.1", port=8000)

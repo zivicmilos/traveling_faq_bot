@@ -34,7 +34,7 @@ function RadioButtons() {
   };
 
   return (
-    <div className="w-25 px-3 pt-6">
+    <div className="w-25 px-3">
       <div onChange={onChangeModel}>
         <h5>Model</h5>
         <div className="form-check">
