@@ -11,5 +11,5 @@ class HighRecall(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def get_n_similar_documents(self, document):
+    def get_n_similar_documents(self, document, n_neighbours):
         pass

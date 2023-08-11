@@ -210,12 +210,14 @@ class WordLevelVectorization(HighRecall):
 
         return score
 
-    def get_n_similar_documents(self, document: str) -> list[str]:
+    def get_n_similar_documents(self, document: str, n_neighbours: int = None) -> list[str]:
         """
         Gives N documents similar to input document
 
         :param document: str
             input document
+        :param n_neighbours: int
+            number of similar documents
         :return:
             list of N documents similar to input document
         """
@@ -227,7 +229,9 @@ class WordLevelVectorization(HighRecall):
         if self.logging:
             print("Questions vectorized")
 
-        knn = NearestNeighbors(n_neighbors=self.n_neighbours, metric=self.metric).fit(
+        if n_neighbours is None:
+            n_neighbours = self.n_neighbours
+        knn = NearestNeighbors(n_neighbors=n_neighbours, metric=self.metric).fit(
             vectorized_questions
         )
         if self.logging:
