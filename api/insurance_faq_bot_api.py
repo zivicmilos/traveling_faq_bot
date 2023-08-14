@@ -4,6 +4,7 @@ import pickle
 
 import nltk
 import numpy as np
+import openai
 import pandas as pd
 import requests
 import uvicorn
@@ -249,6 +250,26 @@ def get_answer(question: Question):
     return output[0]["generated_text"]
 
 
+@app.post("/faq/chat_gpt")
+def get_answer(question: Question):
+    openai.api_key = os.environ["OPENAI_API_TOKEN"]
+
+    messages.append(
+        {"role": "user", "content": question.question},
+    )
+    try:
+        chat = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo", messages=messages
+        )
+    except Exception:
+        return "Problem with OpenAI API. Check potential causes or try in a few minutes."
+
+    reply = chat.choices[0].message.content
+    messages.append({"role": "assistant", "content": reply})
+
+    return reply
+
+
 if __name__ == "__main__":
     nltk.download("stopwords")
     stops = set(stopwords.words("english"))
@@ -272,5 +293,7 @@ if __name__ == "__main__":
         strategy="sum",
         weight=None,
     )
+
+    messages = [{"role": "system", "content": "You are a intelligent assistant."}]
 
     uvicorn.run(app, host="127.0.0.1", port=8000)

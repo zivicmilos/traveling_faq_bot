@@ -15,7 +15,8 @@ function Navbar() {
     else if (defaultModel === "similarity") setDefaultModel("table_qa");
     else if (defaultModel === "table_qa") setDefaultModel("gpt2");
     else if (defaultModel === "gpt2") setDefaultModel("bloom");
-    else if (defaultModel === "bloom") setDefaultModel("default");
+    else if (defaultModel === "bloom") setDefaultModel("chat_gpt");
+    else if (defaultModel === "chat_gpt") setDefaultModel("default");
   };
 
   useEffect(() => {
@@ -61,6 +62,11 @@ function Navbar() {
             {defaultModel === "bloom" && (
               <a className="nav-link" href="/" onClick={handleModelType}>
                 Bloom model
+              </a>
+            )}
+            {defaultModel === "chat_gpt" && (
+              <a className="nav-link" href="/" onClick={handleModelType}>
+                ChatGPT model
               </a>
             )}
           </li>

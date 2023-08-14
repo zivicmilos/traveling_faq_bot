@@ -36,3 +36,9 @@ export const getAnswerBloom = (question) => {
     return response.data;
   });
 };
+
+export const getAnswerChatGPT = (question) => {
+  return axios.post(API_URL + "chat_gpt", question).then((response) => {
+    return response.data;
+  });
+};

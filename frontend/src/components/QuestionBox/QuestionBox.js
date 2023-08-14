@@ -2,6 +2,7 @@ import "./QuestionBox.css";
 import { useStore } from "../../helpers/store";
 import {
   getAnswerBloom,
+  getAnswerChatGPT,
   getAnswerCustomized,
   getAnswerDefault,
   getAnswerGPT2,
@@ -69,6 +70,12 @@ function QuestionBox() {
       });
     } else if (defaultModel === "bloom") {
       getAnswerBloom(q).then((answer) => {
+        console.log(answer);
+        let item = { id: items.length + 1, item: "A: " + answer };
+        addItem(item);
+      });
+    } else if (defaultModel === "chat_gpt") {
+      getAnswerChatGPT(q).then((answer) => {
         console.log(answer);
         let item = { id: items.length + 1, item: "A: " + answer };
         addItem(item);
