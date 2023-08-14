@@ -13,7 +13,9 @@ function Navbar() {
     if (defaultModel === "default") setDefaultModel("customized");
     else if (defaultModel === "customized") setDefaultModel("similarity");
     else if (defaultModel === "similarity") setDefaultModel("table_qa");
-    else if (defaultModel === "table_qa") setDefaultModel("default");
+    else if (defaultModel === "table_qa") setDefaultModel("gpt2");
+    else if (defaultModel === "gpt2") setDefaultModel("bloom");
+    else if (defaultModel === "bloom") setDefaultModel("default");
   };
 
   useEffect(() => {
@@ -49,6 +51,16 @@ function Navbar() {
             {defaultModel === "table_qa" && (
               <a className="nav-link" href="/" onClick={handleModelType}>
                 Table QA model
+              </a>
+            )}
+            {defaultModel === "gpt2" && (
+              <a className="nav-link" href="/" onClick={handleModelType}>
+                GPT2 model
+              </a>
+            )}
+            {defaultModel === "bloom" && (
+              <a className="nav-link" href="/" onClick={handleModelType}>
+                Bloom model
               </a>
             )}
           </li>

@@ -223,6 +223,32 @@ def get_answer(question: Question):
     return output["answer"]
 
 
+@app.post("/faq/gpt2")
+def get_answer(question: Question):
+    output = query("gpt2", {
+        "inputs": question.question,
+        "parameters": {"max_length": 128},
+    })
+
+    if isinstance(output, dict) and "error" in output:
+        return output["error"] + ". Try again in a few seconds."
+
+    return output[0]["generated_text"]
+
+
+@app.post("/faq/bloom")
+def get_answer(question: Question):
+    output = query("bigscience/bloom-560m", {
+        "inputs": question.question,
+        "parameters": {"max_length": 128},
+    })
+
+    if isinstance(output, dict) and "error" in output:
+        return output["error"] + ". Try again in a few seconds."
+
+    return output[0]["generated_text"]
+
+
 if __name__ == "__main__":
     nltk.download("stopwords")
     stops = set(stopwords.words("english"))

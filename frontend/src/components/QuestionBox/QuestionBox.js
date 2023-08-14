@@ -1,8 +1,10 @@
 import "./QuestionBox.css";
 import { useStore } from "../../helpers/store";
 import {
+  getAnswerBloom,
   getAnswerCustomized,
   getAnswerDefault,
+  getAnswerGPT2,
   getAnswerSimilarity,
   getAnswerTableQA,
 } from "../../services/faq-service";
@@ -55,6 +57,18 @@ function QuestionBox() {
       });
     } else if (defaultModel === "table_qa") {
       getAnswerTableQA(q).then((answer) => {
+        console.log(answer);
+        let item = { id: items.length + 1, item: "A: " + answer };
+        addItem(item);
+      });
+    } else if (defaultModel === "gpt2") {
+      getAnswerGPT2(q).then((answer) => {
+        console.log(answer);
+        let item = { id: items.length + 1, item: "A: " + answer };
+        addItem(item);
+      });
+    } else if (defaultModel === "bloom") {
+      getAnswerBloom(q).then((answer) => {
         console.log(answer);
         let item = { id: items.length + 1, item: "A: " + answer };
         addItem(item);

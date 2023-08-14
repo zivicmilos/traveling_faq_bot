@@ -24,3 +24,15 @@ export const getAnswerTableQA = (question) => {
     return response.data;
   });
 };
+
+export const getAnswerGPT2 = (question) => {
+  return axios.post(API_URL + "gpt2", question).then((response) => {
+    return response.data;
+  });
+};
+
+export const getAnswerBloom = (question) => {
+  return axios.post(API_URL + "bloom", question).then((response) => {
+    return response.data;
+  });
+};
