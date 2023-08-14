@@ -13,7 +13,11 @@ function App() {
     <div className="App">
       <Navbar />
       <div className="CentralBox hstack">
-        {defaultModel ? <div className="w-25 px-3"></div> : <RadioButtons />}
+        {defaultModel === "customized" ? (
+          <RadioButtons />
+        ) : (
+          <div className="w-25 px-3"></div>
+        )}
         {!!items.length && <ListGroup />}
         {!items.length && (
           <div className="w-50 hstack justify-content-center">

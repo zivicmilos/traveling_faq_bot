@@ -52,14 +52,49 @@ class Question(BaseModel):
     model: str
     preprocessing: str
     weight: str
-    defaultModel: bool
 
 
-@app.post("/faq/questions")
+@app.post("/faq/default")
 def get_answer(question: Question):
-    if question.defaultModel:
-        high_recall_model = preloaded_high_recall_model
-    elif question.model in ["custom", "pretrained"]:
+    candidates = preloaded_high_recall_model.get_n_similar_documents(question.question)
+    candidates_ = candidates.copy()
+    questions = [question.question for _ in range(len(candidates))]
+
+    vocabulary = vocabulary_pretrained_wv
+
+    for i, c in enumerate(candidates):
+        candidates[i] = [
+            vocabulary.get(word, 0)
+            for word in text_to_word_list(c)
+            if word not in stops
+        ]
+    for i, q in enumerate(questions):
+        questions[i] = [
+            vocabulary.get(word, 0)
+            for word in text_to_word_list(q)
+            if word not in stops
+        ]
+    candidates = pad_sequences(candidates, maxlen=212)
+    questions = pad_sequences(questions, maxlen=212)
+
+    high_precision_model = load_model(
+        "../experiments/high_precision/model/malstm_model_pretrained_wv.h5", compile=False
+    )
+
+    output = high_precision_model.predict([questions, candidates])
+    output = list(itertools.chain.from_iterable(output))
+
+    index_max = np.argmax(output)
+
+    if output[index_max] < 0.7:
+        return "Sorry, but I do not understand your question. Can you rephrase it and try again?"
+
+    return find_answer(candidates_[index_max])
+
+
+@app.post("/faq/customized")
+def get_answer(question: Question):
+    if question.model in ["custom", "pretrained"]:
         high_recall_model = WordLevelVectorization(
             train=False,
             n_neighbours=100,

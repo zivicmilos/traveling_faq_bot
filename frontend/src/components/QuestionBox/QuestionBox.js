@@ -1,6 +1,9 @@
 import "./QuestionBox.css";
 import { useStore } from "../../helpers/store";
-import { getAnswer } from "../../services/faq-service";
+import {
+  getAnswerCustomized,
+  getAnswerDefault,
+} from "../../services/faq-service";
 import { storeData } from "../../helpers/local-storage";
 import { useEffect } from "react";
 
@@ -26,15 +29,23 @@ function QuestionBox() {
       model: model,
       preprocessing: preprocessing,
       weight: weight,
-      defaultModel: defaultModel,
     };
     let item = { id: items.length, item: "Q: " + question };
     addItem(item);
-    getAnswer(q).then((answer) => {
-      console.log(answer);
-      let item = { id: items.length + 1, item: "A: " + answer };
-      addItem(item);
-    });
+
+    if (defaultModel === "default") {
+      getAnswerDefault(q).then((answer) => {
+        console.log(answer);
+        let item = { id: items.length + 1, item: "A: " + answer };
+        addItem(item);
+      });
+    } else if (defaultModel === "customized") {
+      getAnswerCustomized(q).then((answer) => {
+        console.log(answer);
+        let item = { id: items.length + 1, item: "A: " + answer };
+        addItem(item);
+      });
+    }
 
     setQuestion("");
   };

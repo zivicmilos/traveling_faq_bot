@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { getData } from "./local-storage";
 
 const initialState = () => getData("items") || [];
-const initialDefaultModel = () => getData("defaultModel") || false;
+const initialDefaultModel = () => getData("defaultModel") || "default";
 
 export const useStore = create((set) => ({
   question: "",
