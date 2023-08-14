@@ -12,7 +12,8 @@ function Navbar() {
     e.preventDefault();
     if (defaultModel === "default") setDefaultModel("customized");
     else if (defaultModel === "customized") setDefaultModel("similarity");
-    else if (defaultModel === "similarity") setDefaultModel("default");
+    else if (defaultModel === "similarity") setDefaultModel("table_qa");
+    else if (defaultModel === "table_qa") setDefaultModel("default");
   };
 
   useEffect(() => {
@@ -43,6 +44,11 @@ function Navbar() {
             {defaultModel === "similarity" && (
               <a className="nav-link" href="/" onClick={handleModelType}>
                 Similarity model
+              </a>
+            )}
+            {defaultModel === "table_qa" && (
+              <a className="nav-link" href="/" onClick={handleModelType}>
+                Table QA model
               </a>
             )}
           </li>

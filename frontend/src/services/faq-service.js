@@ -18,3 +18,9 @@ export const getAnswerSimilarity = (question) => {
     return response.data;
   });
 };
+
+export const getAnswerTableQA = (question) => {
+  return axios.post(API_URL + "table_qa", question).then((response) => {
+    return response.data;
+  });
+};

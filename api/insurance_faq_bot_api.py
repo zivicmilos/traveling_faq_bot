@@ -42,7 +42,7 @@ def query(model, payload):
     return response.json()
 
 
-API_URL = "https://api-inference.huggingface.co/models/sentence-transformers/"
+API_URL = "https://api-inference.huggingface.co/models/"
 headers = {"Authorization": f"Bearer {os.environ['HF_API_TOKEN']}"}
 app = FastAPI()
 
@@ -190,7 +190,7 @@ def get_answer(question: Question):
     )
 
     output = query(
-        "msmarco-distilbert-base-tas-b",
+        "sentence-transformers/msmarco-distilbert-base-tas-b",
         {"inputs": {"source_sentence": question.question, "sentences": candidates}},
     )
 
@@ -203,6 +203,24 @@ def get_answer(question: Question):
         return "Sorry, but I do not understand your question. Can you rephrase it and try again?"
 
     return find_answer(candidates[index_max])
+
+
+@app.post("/faq/table_qa")
+def get_answer(question: Question):
+    candidates = preloaded_high_recall_model.get_n_similar_documents(question.question)
+    answers = [find_answer(c) for c in candidates]
+
+    output = query("google/tapas-base-finetuned-wtq", {
+        "inputs": {
+            "query": question.question,
+            "table": {"Answer": answers}
+        }
+    })
+
+    if isinstance(output, dict) and "error" in output:
+        return output["error"] + ". Try again in a few seconds."
+
+    return output["answer"]
 
 
 if __name__ == "__main__":
