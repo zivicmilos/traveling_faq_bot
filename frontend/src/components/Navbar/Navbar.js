@@ -11,7 +11,8 @@ function Navbar() {
   const handleModelType = (e) => {
     e.preventDefault();
     if (defaultModel === "default") setDefaultModel("customized");
-    else if (defaultModel === "customized") setDefaultModel("default");
+    else if (defaultModel === "customized") setDefaultModel("similarity");
+    else if (defaultModel === "similarity") setDefaultModel("default");
   };
 
   useEffect(() => {
@@ -37,6 +38,11 @@ function Navbar() {
             {defaultModel === "customized" && (
               <a className="nav-link" href="/" onClick={handleModelType}>
                 Customize model
+              </a>
+            )}
+            {defaultModel === "similarity" && (
+              <a className="nav-link" href="/" onClick={handleModelType}>
+                Similarity model
               </a>
             )}
           </li>

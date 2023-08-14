@@ -3,6 +3,7 @@ import { useStore } from "../../helpers/store";
 import {
   getAnswerCustomized,
   getAnswerDefault,
+  getAnswerSimilarity,
 } from "../../services/faq-service";
 import { storeData } from "../../helpers/local-storage";
 import { useEffect } from "react";
@@ -41,6 +42,12 @@ function QuestionBox() {
       });
     } else if (defaultModel === "customized") {
       getAnswerCustomized(q).then((answer) => {
+        console.log(answer);
+        let item = { id: items.length + 1, item: "A: " + answer };
+        addItem(item);
+      });
+    } else if (defaultModel === "similarity") {
+      getAnswerSimilarity(q).then((answer) => {
         console.log(answer);
         let item = { id: items.length + 1, item: "A: " + answer };
         addItem(item);

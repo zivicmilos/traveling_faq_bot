@@ -1,9 +1,11 @@
 import itertools
+import os
 import pickle
 
 import nltk
 import numpy as np
 import pandas as pd
+import requests
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,8 +18,12 @@ from experiments.high_precision.high_precision_modeling import (
     exponent_neg_manhattan_distance,
     text_to_word_list,
 )
-from experiments.high_recall.document_level_vectorization.document_level_vectorization import DocumentLevelVectorization
-from experiments.high_recall.finbert_embeddings.finbert_embeddings import FinBERTEmbeddings
+from experiments.high_recall.document_level_vectorization.document_level_vectorization import (
+    DocumentLevelVectorization,
+)
+from experiments.high_recall.finbert_embeddings.finbert_embeddings import (
+    FinBERTEmbeddings,
+)
 from experiments.high_recall.word_level_vectorization.word_level_vectorization import (
     WordLevelVectorization,
 )
@@ -31,6 +37,13 @@ def find_answer(question: str) -> str:
     return " ".join(answer)
 
 
+def query(model, payload):
+    response = requests.post(API_URL + model, headers=headers, json=payload)
+    return response.json()
+
+
+API_URL = "https://api-inference.huggingface.co/models/sentence-transformers/"
+headers = {"Authorization": f"Bearer {os.environ['HF_API_TOKEN']}"}
 app = FastAPI()
 
 allowed_origins = [
@@ -78,7 +91,8 @@ def get_answer(question: Question):
     questions = pad_sequences(questions, maxlen=212)
 
     high_precision_model = load_model(
-        "../experiments/high_precision/model/malstm_model_pretrained_wv.h5", compile=False
+        "../experiments/high_precision/model/malstm_model_pretrained_wv.h5",
+        compile=False,
     )
 
     output = high_precision_model.predict([questions, candidates])
@@ -149,11 +163,13 @@ def get_answer(question: Question):
 
     if question.model == "custom":
         high_precision_model = load_model(
-            "../experiments/high_precision/model/malstm_model_custom_wv.h5", compile=False
+            "../experiments/high_precision/model/malstm_model_custom_wv.h5",
+            compile=False,
         )
     else:
         high_precision_model = load_model(
-            "../experiments/high_precision/model/malstm_model_pretrained_wv.h5", compile=False
+            "../experiments/high_precision/model/malstm_model_pretrained_wv.h5",
+            compile=False,
         )
 
     output = high_precision_model.predict([questions, candidates])
@@ -167,17 +183,39 @@ def get_answer(question: Question):
     return find_answer(candidates_[index_max])
 
 
+@app.post("/faq/similarity")
+def get_answer(question: Question):
+    candidates = preloaded_high_recall_model.get_n_similar_documents(
+        question.question, n_neighbours=1000
+    )
+
+    output = query(
+        "msmarco-distilbert-base-tas-b",
+        {"inputs": {"source_sentence": question.question, "sentences": candidates}},
+    )
+
+    if isinstance(output, dict) and "error" in output:
+        return output["error"] + ". Try again in a few seconds."
+
+    index_max = np.argmax(output)
+
+    if output[index_max] < 0.7:
+        return "Sorry, but I do not understand your question. Can you rephrase it and try again?"
+
+    return find_answer(candidates[index_max])
+
+
 if __name__ == "__main__":
     nltk.download("stopwords")
     stops = set(stopwords.words("english"))
 
     with open(
-            "../experiments/high_precision/vocabulary/vocabulary_custom_wv.pkl", "rb"
+        "../experiments/high_precision/vocabulary/vocabulary_custom_wv.pkl", "rb"
     ) as f:
         vocabulary_custom_wv = pickle.load(f)
     with open(
-            "../experiments/high_precision/vocabulary/vocabulary_pretrained_wv.pkl",
-            "rb",
+        "../experiments/high_precision/vocabulary/vocabulary_pretrained_wv.pkl",
+        "rb",
     ) as f:
         vocabulary_pretrained_wv = pickle.load(f)
 

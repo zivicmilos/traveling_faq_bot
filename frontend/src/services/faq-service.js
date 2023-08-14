@@ -12,3 +12,9 @@ export const getAnswerCustomized = (question) => {
     return response.data;
   });
 };
+
+export const getAnswerSimilarity = (question) => {
+  return axios.post(API_URL + "similarity", question).then((response) => {
+    return response.data;
+  });
+};
