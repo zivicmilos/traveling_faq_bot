@@ -61,9 +61,9 @@ function RadioButtons() {
             className="form-check-input"
             type="radio"
             name="exampleRadios"
-            value="finbert"
+            value="tourbert"
           />
-          <label className="form-check-label">FinBERT word vectors</label>
+          <label className="form-check-label">TourBERT word vectors</label>
         </div>
         <div className="form-check">
           <input

@@ -1,1 +1,1 @@
-# insurance-faq-bot
+# traveling-faq-bot

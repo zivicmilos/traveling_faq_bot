@@ -76,7 +76,7 @@ if __name__ == "__main__":
     # Load training set
     train_df = pd.read_csv(TRAIN_TSV, delimiter="\t").iloc[:, 3:]
 
-    df = pd.read_csv("../../data/insurance_qna_dataset.csv", sep="\t")
+    df = pd.read_csv("../../data/traveling_qna_dataset.csv", sep="\t")
     df.drop(columns=df.columns[0], axis=1, inplace=True)
     questions = np.unique(df.iloc[:, 0].to_numpy())
     documents = [

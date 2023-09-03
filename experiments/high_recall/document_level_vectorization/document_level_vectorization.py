@@ -87,7 +87,7 @@ class DocumentLevelVectorization(HighRecall):
         nltk.download("punkt")  # used for tokenization
         nltk.download("wordnet")  # used for lemmatization
 
-        df = pd.read_csv(os.path.join(DATA_DIR, "insurance_qna_dataset.csv"), sep="\t")
+        df = pd.read_csv(os.path.join(DATA_DIR, "traveling_qna_dataset.csv"), sep="\t")
         df.drop(columns=df.columns[0], axis=1, inplace=True)
 
         if self.vectorizer_type == "tf":
@@ -224,6 +224,6 @@ if __name__ == "__main__":
         ngram_range=(1, 1),
     )
     similar_documents = document_level_vectorization.get_n_similar_documents(
-        "Why Do They Take Bloods And Urine For Lifes Insurance?"
+        "Can you fly around the globe with just one bag?"
     )
     print(similar_documents)

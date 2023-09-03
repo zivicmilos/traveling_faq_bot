@@ -21,7 +21,7 @@ function App() {
         {!!items.length && <ListGroup />}
         {!items.length && (
           <div className="w-50 hstack justify-content-center">
-            <div>Feel free to ask any insurance-related question :)</div>
+            <div>Feel free to ask any traveling-related question :)</div>
           </div>
         )}
       </div>

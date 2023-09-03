@@ -86,7 +86,7 @@ class WordLevelVectorization(HighRecall):
         self.strategy = strategy
         self.weight = weight
 
-        df = load_dataset(os.path.join(DATA_DIR, "insurance_qna_dataset.csv"))
+        df = load_dataset(os.path.join(DATA_DIR, "traveling_qna_dataset.csv"))
         self.questions = np.unique(df.iloc[:, 0].to_numpy())
         self.documents = [
             list(tokenize(question.lower())) for question in self.questions
@@ -264,6 +264,6 @@ if __name__ == "__main__":
         weight=None,
     )
     similar_documents = word_level_vectorization.get_n_similar_documents(
-        "Why Do They Take Bloods And Urine For Lifes Insurance?"
+        "Can you fly around the globe with just one bag?"
     )
     print(similar_documents)
