@@ -159,8 +159,13 @@ def get_answer(question: Question):
             for word in text_to_word_list(q)
             if word not in stops
         ]
-    candidates = pad_sequences(candidates, maxlen=212)
-    questions = pad_sequences(questions, maxlen=212)
+
+    if question.model == "custom":
+        candidates = pad_sequences(candidates, maxlen=244)
+        questions = pad_sequences(questions, maxlen=244)
+    else:
+        candidates = pad_sequences(candidates, maxlen=212)
+        questions = pad_sequences(questions, maxlen=212)
 
     if question.model == "custom":
         high_precision_model = load_model(

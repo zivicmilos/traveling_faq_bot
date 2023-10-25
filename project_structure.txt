@@ -1,0 +1,58 @@
+traveling_faq_bot
+|-- api
+|   `-- traveling_faq_bot_api.py
+|-- data
+|   |-- quora_duplicate_questions.tsv
+|   |-- test_questions_json.json
+|   `-- traveling_qna_dataset.csv
+|-- data_scraping
+|   `-- scraper.py
+|-- experiments
+|   |-- high_precision
+|   |   |-- high_precision_modeling.py
+|   |   |-- model
+|   |   `-- vocabulary
+|   `-- high_recall
+|       |-- HighRecall.py
+|       |-- document_level_vectorization
+|       |   |-- document_level_vectorization.py
+|       |   `-- preprocessing.py
+|       |-- tourbert_embeddings
+|       |   `-- tourbert_embeddings.py
+|       `-- word_level_vectorization
+|           |-- utils.py
+|           `-- word_level_vectorization.py
+`-- frontend
+    |-- node_modules
+    |-- package-lock.json
+    |-- package.json
+    |-- public
+    |   |-- favicon.ico
+    |   `-- index.html
+    `-- src
+        |-- components
+        |   |-- App
+        |   |   |-- App.css
+        |   |   |-- App.js
+        |   |   `-- App.test.js
+        |   |-- ListGroup
+        |   |   |-- ListGroup.css
+        |   |   `-- ListGroup.js
+        |   |-- Navbar
+        |   |   |-- Navbar.css
+        |   |   `-- Navbar.js
+        |   |-- QuestionBox
+        |   |   |-- QuestionBox.css
+        |   |   `-- QuestionBox.js
+        |   `-- RadioButtons
+        |       |-- RadioButtons.css
+        |       `-- RadioButtons.js
+        |-- helpers
+        |   |-- local-storage.js
+        |   `-- store.js
+        |-- index.css
+        |-- index.js
+        `-- services
+            `-- faq-service.js
+
+22 directories, 37 files
